@@ -1,10 +1,13 @@
 __author__ = 'Hossein Noroozpour'
-from gi.repository import Gtk, GLib
 import subprocess
+
+from gi.repository import Gtk, GLib
+
 
 class MainWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="Step Alarm")
+        self.mins = 0
         self.set_position(Gtk.WindowPosition.CENTER)
         self.set_resizable(False)
         grid = Gtk.Grid()
@@ -52,14 +55,20 @@ class MainWindow(Gtk.Window):
         print("Minute is: " + str(mins))
         self.sb.set_sensitive(False)
         self.cb.set_sensitive(True)
-        self.timer = GLib.timeout_add_seconds(mins * 60, self.on_timer)
+        self.timer = GLib.timeout_add_seconds(60, self.on_timer)
+        self.mins = mins
 
     def on_timer(self):
         print("Alarm")
-        self.sb.set_sensitive(True)
-        self.cb.set_sensitive(False)
-        subprocess.call(['vlc', self.file])
-        return False
+        self.mins -= 1
+        if self.mins < 0:
+            self.sb.set_sensitive(True)
+            self.cb.set_sensitive(False)
+            subprocess.call(['vlc', self.file])
+            return False
+        else:
+            print(self.mins, " min left.")
+            return True
 
     def on_cancel(self, button):
         print("Canceled.")
